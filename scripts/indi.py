@@ -110,29 +110,33 @@ indicadores["grupo"]=indicadores["grupo"].astype("category")
 indicadores["modalidad"]=indicadores["modalidad"].astype("category")
 
 
-#indicadores.rename(columns={
-#                            'matricula': 'Matrícula',
-#                            'grupo': 'Grupo',
-#                            'ultimo acceso m': 'Último Acceso Materia',
-#                            'ultimo acceso auvi': 'Último Acceso Aula Virtual',
-#                            'requerido': 'Tiempo Requerido',
-#                            'asignatura': 'Nombre de Materia',
-#                            'clave': 'Clave',
-#                            'modalidad': 'Modalidad',
-#                            'calificacion_x': 'Calificación de Actividad/Examen',
-#                            'calificacion_y': 'Calificación Final',
-#                            'ultimo acceso': 'Último Acceso a Plataforma',
-#                            'intento': 'Número de Intentos',
-#                            'actividad': 'Actividad',
-#                            }, inplace=True)
 
-print(indicadores.head())
+
+#print(indicadores.head())
 #print(indicadores.info())
 #print(indicadores["asignatura"].nunique())
-
-print(indicadores["intento"].nunique())
-print(indicadores.info())
-print(path)
-#indicadores.to_csv(path_or_buf=path)
+#
+#print(indicadores["intento"].nunique())
+#print(indicadores.info())
+#print(path)
+indicadores["Nombre"]=indicadores["Nombre"].str.title()
+indicadores.insert(7,column="Estado General", value=indicadores["clave"].str.split("_").str.get(2))
+indicadores.rename(columns={
+                            'matricula': 'Matrícula',
+                            'grupo': 'Grupo',
+                            'ultimo acceso m': 'Último Acceso Materia',
+                            'ultimo acceso auvi': 'Último Acceso Aula Virtual',
+                            'requerido': 'Tiempo Requerido',
+                            'asignatura': 'Nombre de Materia',
+                            'clave': 'Clave',
+                            'modalidad': 'Modalidad',
+                            'calificacion_x': 'Calificación de Actividad/Examen',
+                            'calificacion_y': 'Calificación Final',
+                            'ultimo acceso': 'Último Acceso a Plataforma',
+                            'intento': 'Número de Intentos',
+                            'actividad': 'Actividad',
+                            }, inplace=True)
+print(indicadores.head())
+indicadores.to_csv(path_or_buf=path)
 
 print("--- %s seconds ---" % (time.time() - start_time))
