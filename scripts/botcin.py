@@ -6,14 +6,9 @@ Created on Thu Apr 12 10:43:10 2018
 """
 
 import threading, time
+import pyautogui as gui, requests as rq
+import webbrowser
 
-print('Start of program.')
-
-def takeANap():
-    time.sleep(15)
-    print('Wake up!')
-
-threadObj = threading.Thread(target=takeANap)
-threadObj.start()
-
-print('End of program.')
+time.sleep(6)
+gui.hotkey('ctrl','alt','del')
+"C:\Program Files\PremiumSoft\Navicat Premium Essentials 12\navicat.exe"

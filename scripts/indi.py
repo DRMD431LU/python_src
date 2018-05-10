@@ -1,17 +1,17 @@
 #from selenium.webdriver.common.by import By
 import time
 import pandas as pd
-import datetime
-#import openpyxl as xl
-#from openpyxl import load_workbook
+import datetime as dt
+import os
+import pyautogui as gui, requests as rq
 
 ''' se realiza la carga del modulo
 de tiempo para medir la duracion de ejecucion.'''
 start_time = time.time()
-st = datetime.datetime.fromtimestamp(start_time).strftime('%Y-%m-%d %H:%M:%S')
+# bot.archivos()
+st = dt.datetime.fromtimestamp(start_time).strftime('%Y-%m-%d %H:%M:%S')
 st,a=st.split(" ")
-#wb = load_workbook(filename = r'C:\Users\vriosto\Downloads\Reporte\Asignacion.xlsx')
-#sheet_ranges = wb['range names']
+
 '''Se cargan los archivos necesarios para generar el reporte
 y se concatenan para disminuir el numero'''
 path=r"C:\Users\vriosto\Desktop\indicadores"+st+".csv"
@@ -31,26 +31,18 @@ frames2=[CFA,CFA0]
 Calificacion_final=pd.concat(frames2)
 frames3=[CEAB,CEAP]
 Calificacion_examen=pd.concat(frames3)
-#print(Modalidad_eval.head(1))
-#print(Calificacion_final.head(1))
-#print(Acceso_status.head(1))
-#print(Calificacion_examen.head(1))
-#print(Modalidad_eval.head(1))
-#print(Modalidad_eval['ultimo acceso auvi'])
-#print(Modalidad_eval['apellidos'])
-#frames=[Acceso_status['nombre'],Acceso_status['apellidos']]
-'''se eliminan columnas innecesarias'''
+
+'''se eliminan columnas innecesarias, seleccionando las columnas a utilizar'''
+
 Acceso_status=Acceso_status[['status plataforma','status','matricula','nombre','apellidos','grupo','asignatura','ultimo acceso m','ultimo acceso auvi','clave']]
 Modalidad_eval=Modalidad_eval[['status plataforma','status','matricula','modalidad','asignatura']]
 Calificacion_examen=Calificacion_examen[['matricula','asignatura','actividad','requerido','calificacion','intento']]
 Calificacion_final=Calificacion_final[['status plataforma','status','matricula','asignatura','calificacion','ultimo acceso']]
-#nombre=pd.concat.(frames)
-#Modalidad_eval['matricula'].add(0)
+
 '''se filtran alumnos por status plataforma y status marcados 
 como activos.'''
 activo1=Acceso_status['status plataforma'] == "Activo"
 activo2=Acceso_status['status'] == "Activo"
-#Acceso_status[activo2 & activo1]
 Acceso_status=Acceso_status[activo1 & activo2]
 activo1=Modalidad_eval['status plataforma'] == "Activo"
 activo2=Modalidad_eval['status'] == "Activo"
@@ -59,22 +51,11 @@ activo1=Calificacion_final['status plataforma'] == "Activo"
 activo2=Calificacion_final['status'] == "Activo"
 Calificacion_final=Calificacion_final[activo1 & activo2]
 
-
-
-#print(Modalidad_eval.head(1))
-#print("*******************************")
-#print(Calificacion_examen.head(1))
-#print("*******************************")
-#print(Calificacion_final.head(1))
-#print("*******************************")
-#print(Acceso_status.head(1))
-#print("*******************************")
-
-#nombre=Acceso_status[['nombre','apellidos']]
-#Modalidad_eval.fillna("Sin modalidad")
-#print(Modalidad_eval['modalidad'].value_counts())
+'''se inserta el nombre concatenado'''
 nombre=Acceso_status['nombre']+" "+Acceso_status['apellidos']
 Acceso_status.insert(3,column="Nombre",value=nombre)
+
+'''se hace merge de cada par de dataframes'''
 Acceso_status= pd.merge(Acceso_status,Modalidad_eval , how='outer',
                left_on=['matricula','asignatura'], 
                right_on=['matricula','asignatura'])
@@ -84,43 +65,41 @@ Calificacion_final= pd.merge(Calificacion_examen,Calificacion_final, how='outer'
 indicadores= pd.merge(Acceso_status,Calificacion_final, how='outer',
                left_on=['matricula','asignatura'], 
                right_on=['matricula','asignatura'])
+
+
+'''se eliminan las columnas de estatus plaataaforma, status, nombre, apellidos, '''
 indicadores.drop("status plataforma_x",axis=1,inplace=True)
 indicadores.drop("status plataforma_y",axis=1,inplace=True)
 indicadores.drop("status_x",axis=1,inplace=True)
 indicadores.drop("status_y",axis=1,inplace=True)
 indicadores.drop("nombre",axis=1,inplace=True)
 indicadores.drop("apellidos",axis=1,inplace=True)
+
+'''se filta por activo en status y status plataforma'''
 activo1=indicadores['status plataforma'] == "Activo"
 activo2=indicadores['status'] == "Activo"
-#Acceso_status[activo2 & activo1]
 indicadores=indicadores[activo1 & activo2]
-#print(nombre)
-#print(Acceso_status.head())
-#print("*******************************")
-#print(Calificacion_final.head())
+
+'''se eliminan las columnas de status y status plataforma '''
 indicadores.drop("status",axis=1,inplace=True)
 indicadores.drop("status plataforma",axis=1,inplace=True)
+
+'''se rellenan valores null'''
 indicadores["actividad"].fillna("Sin Modalidad",inplace=True)
 indicadores["requerido"].fillna("Sin Intento",inplace=True)
 indicadores["calificacion_x"].fillna(0,inplace=True)
 indicadores["intento"].fillna("Sin Intento",inplace=True)
 indicadores["calificacion_y"].fillna(0,inplace=True)
+
+'''se cambia dtypes por categorias'''
 indicadores["asignatura"]=indicadores["asignatura"].astype("category")
 indicadores["grupo"]=indicadores["grupo"].astype("category")
 indicadores["modalidad"]=indicadores["modalidad"].astype("category")
 
-
-
-
-#print(indicadores.head())
-#print(indicadores.info())
-#print(indicadores["asignatura"].nunique())
-#
-#print(indicadores["intento"].nunique())
-#print(indicadores.info())
-#print(path)
+'''se capitaliza el nombre'''
 indicadores["Nombre"]=indicadores["Nombre"].str.title()
-indicadores.insert(7,column="Estado General", value=indicadores["clave"].str.split("_").str.get(2))
+indicadores.insert(7,column="Estado General", value="2018-"+indicadores["clave"].str.split("_").str.get(2))
+
 indicadores.rename(columns={
                             'matricula': 'Matrícula',
                             'grupo': 'Grupo',
@@ -137,6 +116,7 @@ indicadores.rename(columns={
                             'actividad': 'Actividad',
                             }, inplace=True)
 print(indicadores.head())
-indicadores.to_csv(path_or_buf=path)
+if not os.path.exists(path):
+  indicadores.to_csv(path_or_buf=path)
 
 print("--- %s seconds ---" % (time.time() - start_time))
