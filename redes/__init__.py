@@ -1,6 +1,6 @@
 import os, configparser
 #Check if .pyscholar exists and create it if necessary
-chmod(0777)
+# chmod(0777)
 pyscholarDir = os.path.join(os.path.expanduser("~user"), "pyscholar")
 if not os.path.exists(pyscholarDir):
     os.makedirs(pyscholarDir)

@@ -53,7 +53,8 @@ new_indi.rename(columns={
                             'Grupo': 'grupo',
                             'Asignaturas': 'nombre_materia',
                             'Tutor': 'tutor',
-                            'Examen semanal Quincenal': 'frecuencia_examen',                            'clave': 'Clave',
+                            'Examen semanal Quincenal': 'frecuencia_examen',                            
+                            'clave': 'Clave',
                             'Ultimo acceso General': 'acceso_general',
                             'Estado General': 'estado_general',
                             'Acceso por materia': 'acceso_materia',
@@ -63,7 +64,6 @@ new_indi.rename(columns={
                             'Status': 'status',
                             'id_us':'id usuario est',
                             'Clave materia':'id_us',
-                            
                             'Mensaje':'mensaje',
                             }, inplace=True)
 new_indi.to_csv(path_or_buf=path,encoding='utf-8')
